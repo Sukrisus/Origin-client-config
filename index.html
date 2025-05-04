@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Generate Config for Origin-Client Resource Pack" />
+  <meta name="theme-color" content="#000000" />
+  <title>Origin-Client Config Generator</title>
+  <link href="https://fonts.cdnfonts.com/css/coolvetica" rel="stylesheet" />
+  <script src="js/jszip.min.js"></script>
+  <script src="js/pack_icon.png.js"></script> <!-- this should define `pack_iconpng` as a base64 string -->
+  <style>
+    body {
+      background: #0f0f0f;
+      color: #ffffff;
+      font-family: 'Coolvetica', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #1e1e1e;
+      padding: 1rem;
+      font-size: 1.5rem;
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    .card {
+      background: #1c1c1c;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 10px;
+    }
+    h2 {
+      color: #ffffff;
+    }
+    label {
+      display: block;
+      margin: 0.3rem 0;
+    }
+    .button {
+      padding: 0.5rem 1rem;
+      margin: 0.5rem;
+      background: #ffffff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: #000;
+      font-weight: bold;
+    }
+    .center {
+      text-align: center;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      margin-top: 1rem;
+      background: #000;
+      color: #ffffff;
+      padding: 1rem;
+      border-radius: 10px;
+      border: 1px solid #444;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    Origin Client Config Generator
+  </header>
+  <div class="container">
+    <div class="card">
+      <div class="pack_flame">
+        <strong>Origin-Client</strong><br />
+        Config generator for the Origin Client resource pack.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Mods</h2>
+      <div id="options"></div>
+    </div>
+
+    <div class="card">
+      <h2>Generate</h2>
+      <p class="center">Download as .mcpack or copy JSON</p>
+      <div class="center">
+        <button class="button" onclick="mcpack()">Download .mcpack</button>
+        <button class="button" onclick="mcpack('json')">Generate JSON</button>
+      </div>
+      <textarea id="global_variables" readonly></textarea>
+    </div>
+
+    <div class="center">
+      © Origin Client - all rights reserved
+    </div>
+  </div>
+
+  <script>
+    const optionsData = [
+      ["clock_compass", "Clock and Compass"],
+      ["packdisplay", "Pack Display"],
+      ["keystrokes", "Keystrokes"],
+      ["hotbarswitcher", "Hotbar Switcher"],
+      ["inventoryhud", "Inventory HUD"],
+      ["vhs", "VHS Filter"],
+      ["darkness", "Darkness Filter"],
+      ["fade", "Fade Filter"],
+      ["warmtone", "Warmtone Filter"],
+      ["waifu", "Waifu Display"],
+      ["armorhud", "Armor HUD"],
+      ["playerlisttoggle", "Playerlist Toggle"],
+      ["f1", "F1 Button"],
+      ["offhandhud", "Offhand HUD"],
+      ["f8", "F8"],
+      ["f3", "F3"],
+      ["crosshair1", "Crosshair 1"],
+      ["crosshair2", "Crosshair 2"],
+      ["crosshair3", "Crosshair 3"],
+      ["crosshair4", "Crosshair 4"],
+      ["crosshair5", "Crosshair 5"],
+      ["crosshair6", "Crosshair 6"],
+      ["crosshair7", "Crosshair 7"],
+      ["crosshair8", "Crosshair 8"],
+      ["crosshair9", "Crosshair 9"],
+      ["crosshair10", "Crosshair 10"],
+      ["crosshair11", "Crosshair 11"],
+      ["crosshair12", "Crosshair 12"],
+      ["crosshair13", "Crosshair 13"],
+      ["crosshair14", "Crosshair 14"],
+      ["crosshair15", "Crosshair 15"],
+      ["crosshair16", "Crosshair 16"],
+      ["crosshair17", "Crosshair 17"],
+      ["crosshair18", "Crosshair 18"],
+      ["crosshair19", "Crosshair 19"],
+      ["crosshair20", "Crosshair 20"],
+      ["crosshair21", "Crosshair 21"],
+      ["crosshair22", "Crosshair 22"],
+      ["crosshair23", "Crosshair 23"],
+      ["crosshair24", "Crosshair 24"],
+      ["crosshair25", "Crosshair 25"],
+      ["crosshair26", "Crosshair 26"],
+      ["crosshair27", "Crosshair 27"],
+      ["crosshair28", "Crosshair 28"],
+      ["crosshair29", "Crosshair 29"],
+      ["crosshair30", "Crosshair 30"],
+      ["crosshair1rgb", "Crosshair RGB"],
+      ["javachat", "Java Chat"],
+      ["bettervig", "Better Vignette"]
+    ];
+
+    window.onload = () => {
+      const optionsDiv = document.getElementById("options");
+      optionsData.forEach(([id, label]) => {
+        const el = document.createElement("label");
+        el.innerHTML = `<input type="checkbox" id="${id}" /> ${label}`;
+        optionsDiv.appendChild(el);
+      });
+    };
+
+    function generateUUID() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    function generateManifest() {
+      return `{
+  "format_version": 2,
+  "header": {
+    "name": "Origin Config",
+    "description": "Generated using Origin Client Config Generator",
+    "version": [1, 0, 0],
+    "uuid": "${generateUUID()}",
+    "min_engine_version": [1, 13, 0],
+    "pack_scope": "global"
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "version": [1, 0, 0],
+      "uuid": "${generateUUID()}"
+    }
+  ]
+}`;
+    }
+
+    function mcpack(format = "mcpack") {
+      const get = id => document.getElementById(id);
+      const global_variables = {};
+
+      optionsData.forEach(([id]) => {
+        global_variables[`$${id}`] = get(id).checked;
+      });
+
+      if (format === "json") {
+        get("global_variables").value = JSON.stringify(global_variables, null, 2);
+      } else {
+        const zip = new JSZip();
+        zip.file("manifest.json", generateManifest());
+        zip.file("pack_icon.png", pack_iconpng, { base64: true });
+        zip.file("ui/_global_variables.json", JSON.stringify(global_variables, null, 2));
+
+        zip.generateAsync({ type: "blob" }).then(content => {
+          const link = document.createElement('a');
+          link.download = "Origin-Client_Config.mcpack";
+          link.href = URL.createObjectURL(content);
+          link.click();
+          URL.revokeObjectURL(link.href);
+        });
+      }
+    }
+  </script>
+</body>
+</html>
